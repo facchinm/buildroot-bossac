@@ -1,17 +1,33 @@
-From 3fadf0b5a6ae0c350f60854153ba521a0036c11e Mon Sep 17 00:00:00 2001
+From 69b11bda65a60182de803826937ea3b1c884df04 Mon Sep 17 00:00:00 2001
 From: Martino Facchin <m.facchin@arduino.cc>
 Date: Fri, 24 Apr 2015 12:27:02 +0200
-Subject: [PATCH 1/2] allow cross compilation
+Subject: [PATCH] allow cross compilation
 
 ---
- Makefile | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ Makefile | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 6133666..b0c1901 100644
+index 6133666..d258be4 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -134,15 +134,15 @@ DEPENDS+=$(BOSSASH_SRCS:%.cpp=$(OBJDIR)/%.d)
+@@ -63,7 +63,6 @@ endif
+ #
+ # Linux rules
+ #
+-ifeq ($(OS),Linux)
+ COMMON_SRCS+=PosixSerialPort.cpp LinuxPortFactory.cpp
+ COMMON_LIBS=-Wl,--as-needed
+ WX_LIBS+=-lX11
+@@ -72,7 +71,6 @@ MACHINE:=$(shell uname -m)
+ 
+ install: strip
+ 	tar cvzf $(BINDIR)/bossa-$(MACHINE)-$(VERSION).tgz -C $(BINDIR) bossa$(EXE) bossac$(EXE) bossash$(EXE)
+-endif
+ 
+ #
+ # OS X rules
+@@ -134,15 +132,15 @@ DEPENDS+=$(BOSSASH_SRCS:%.cpp=$(OBJDIR)/%.d)
  # Tools
  #
  #Q=@
@@ -20,7 +36,8 @@ index 6133666..b0c1901 100644
 +CXX=$(CROSS_COMPILE)g++
  ARMAS=$(ARM)as
  ARMOBJCOPY=$(ARM)objcopy
- 
+-
++STRIP=$(CROSS_COMPILE)strip
  #
  # CXX Flags
  #
@@ -29,7 +46,7 @@ index 6133666..b0c1901 100644
  WX_CXXFLAGS:=$(shell wx-config --cxxflags --version=$(WXVERSION)) -DWX_PRECOMP -Wno-ctor-dtor-privacy -O2 -fno-strict-aliasing
  BOSSA_CXXFLAGS=$(COMMON_CXXFLAGS) $(WX_CXXFLAGS)
  BOSSAC_CXXFLAGS=$(COMMON_CXXFLAGS)
-@@ -151,6 +151,7 @@ BOSSASH_CXXFLAGS=$(COMMON_CXXFLAGS)
+@@ -151,6 +149,7 @@ BOSSASH_CXXFLAGS=$(COMMON_CXXFLAGS)
  #
  # LD Flags
  #
@@ -37,6 +54,25 @@ index 6133666..b0c1901 100644
  COMMON_LDFLAGS+=-g
  BOSSA_LDFLAGS=$(COMMON_LDFLAGS)
  BOSSAC_LDFLAGS=$(COMMON_LDFLAGS)
+@@ -273,15 +272,15 @@ $(BINDIR)/bossash$(EXE): $(BOSSASH_OBJS) | $(BINDIR)
+ 
+ strip-bossa: $(BINDIR)/bossa$(EXE)
+ 	@echo STRIP $^
+-	$(Q)strip $^
++	$(Q)$(STRIP) $^
+ 
+ strip-bossac: $(BINDIR)/bossac$(EXE)
+ 	@echo STRIP $^
+-	$(Q)strip $^
++	$(Q)$(STRIP) $^
+ 
+ strip-bossash: $(BINDIR)/bossash$(EXE)
+ 	@echo STRIP $^
+-	$(Q)strip $^
++	$(Q)$(STRIP) $^
+ 
+ strip: strip-bossa strip-bossac strip-bossash
+ 
 -- 
 2.3.1
 
